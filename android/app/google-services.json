@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "551731316548",
+    "project_id": "gemini-app-clone",
+    "storage_bucket": "gemini-app-clone.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551731316548:android:cb611b8510fa81b9cab911",
+        "android_client_info": {
+          "package_name": "com.example.gemini_tutorial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDejlKai7Ib7LNhmvIbn4BqY28ueUR28Is"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

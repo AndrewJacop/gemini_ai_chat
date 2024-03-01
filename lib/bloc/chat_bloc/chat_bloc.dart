@@ -18,7 +18,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       FetchHistory event, Emitter<ChatState> emit) async {
     emit(ChatLoadingState(messages: state.messages));
     final messages = service.history().map((e) {
-      return Message(content: e.toString(), isSent: true);
+      return Message(
+          content: e.parts.map((e) => (e as TextPart).text).join(""),
+          isSent: service.isSentFromModel(e.role ?? ""));
     }).toList();
 
     emit(ChatSuccessState(messages: messages));
@@ -32,8 +34,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await service.chatWith(event.message);
     final messages = service.history().map((e) {
-      print(e.parts.length);
-      print(e.parts.map((e) => (e as TextPart).text).toList());
       return Message(
           content: e.parts.fold<String>(
               "",
