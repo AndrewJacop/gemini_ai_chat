@@ -5,11 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/colors.dart';
 import '../../constants/styles.dart';
 
-class MessageCard extends StatelessWidget {
+class MessageCard extends StatefulWidget {
   final Message message;
   final bool isStream;
 
   const MessageCard({super.key, required this.message, this.isStream = false});
+
+  @override
+  State<MessageCard> createState() => _MessageCardState();
+}
+
+class _MessageCardState extends State<MessageCard> {
+  late final Stream<String> streamWord;
 
   Stream<String> streamToStream(Stream<String> text) async* {
     String word = "";
@@ -32,20 +39,33 @@ class MessageCard extends StatelessWidget {
     }
   }
 
+  List<String> extractLinks(String text) {
+    var regex = RegExp(r'https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+');
+    var result = regex.allMatches(text).map((e) => e.group(0) ?? "");
+    return result.toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    streamWord = textToStream(widget.message.content);
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(extractLinks(widget.message.content));
     return StreamBuilder<String>(
-        stream: textToStream(message.content),
+        stream: streamWord,
         builder: (context, snapshot) {
           return Offstage(
             offstage: snapshot.data == null,
             child: Container(
               constraints: BoxConstraints(maxWidth: 300.w, minWidth: 50.w),
               decoration: BoxDecoration(
-                borderRadius: message.isSent
+                borderRadius: widget.message.isSent
                     ? Styles.sendMessageBorder
                     : Styles.receiveMessageBorder,
-                color: message.isSent
+                color: widget.message.isSent
                     ? CustomColors.sendMessageColor
                     : Colors.white,
               ),
@@ -55,11 +75,13 @@ class MessageCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    !isStream || message.isSent
+                    !widget.isStream ||
+                            widget.message.isSent ||
+                            snapshot.connectionState == ConnectionState.done
                         ? Text(
-                            message.content,
+                            widget.message.content,
                             style: GoogleFonts.mulish(
-                              color: message.isSent
+                              color: widget.message.isSent
                                   ? Colors.white
                                   : CustomColors.blackTextColor,
                               fontSize: 14.sp,
@@ -68,7 +90,7 @@ class MessageCard extends StatelessWidget {
                         : Text(
                             snapshot.data ?? "",
                             style: GoogleFonts.mulish(
-                              color: message.isSent
+                              color: widget.message.isSent
                                   ? Colors.white
                                   : CustomColors.blackTextColor,
                               fontSize: 14.sp,
@@ -77,7 +99,7 @@ class MessageCard extends StatelessWidget {
                     Text(
                       "09:45",
                       style: GoogleFonts.lato(
-                        color: message.isSent
+                        color: widget.message.isSent
                             ? Colors.white
                             : CustomColors.timeGrey,
                         fontSize: 10.sp,

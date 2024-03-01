@@ -20,20 +20,11 @@ class _HomePageState extends State<HomePage> {
 
   int length = 0;
   final scrollController = ScrollController();
+
   void _sendMessage(BuildContext context) {
     context.read<ChatBloc>().add(SendMessage(message: controller.text));
     controller.clear();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    scrollController.addListener(() {
-      if (length != context.read<ChatBloc>().state.messages.length) {
-        scrollController.jumpTo(scrollController.position.maxScrollExtent);
-        length = context.read<ChatBloc>().state.messages.length;
-      }
-    });
+    print(scrollController.position.maxScrollExtent);
   }
 
   @override
@@ -55,7 +46,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               if (context.watch<ChatBloc>().state is ChatLoadingState)
-                const CircularProgressIndicator.adaptive()
+                const CupertinoActivityIndicator()
             ],
           ),
           centerTitle: false,
@@ -63,12 +54,22 @@ class _HomePageState extends State<HomePage> {
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: SafeArea(
-            child: BlocBuilder<ChatBloc, ChatState>(
+            child: BlocConsumer<ChatBloc, ChatState>(
+              listener: (context, state) {
+                if (length != state.messages.length || length == 0) {
+                  print("New position");
+                  scrollController.jumpTo(
+                    scrollController.position.maxScrollExtent,
+                  );
+                  length = state.messages.length;
+                }
+              },
               builder: (context, state) {
                 final messages = state.messages;
                 return ListView.separated(
                   itemCount: messages.length,
                   controller: scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final message = messages[index];
                     return Align(

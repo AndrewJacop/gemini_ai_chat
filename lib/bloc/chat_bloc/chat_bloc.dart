@@ -32,8 +32,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     await service.chatWith(event.message);
     final messages = service.history().map((e) {
-      print(e.parts.length);
-      print(e.parts.map((e) => (e as TextPart).text).toList());
       return Message(
           content: e.parts.fold<String>(
               "",
